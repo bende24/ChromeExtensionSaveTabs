@@ -1,0 +1,21 @@
+body {
+	width: 400px;
+	height: 600px;
+	overflow: scroll;
+}
+
+h2 {
+	color: teal;
+	margin: 20px;
+}
+
+.tab {
+	margin-bottom: 7px;
+	margin-left: 15px;
+}
+
+.tabFavicon {
+	margin-right: 10px;
+	width: 16px;
+	height: auto;
+}
