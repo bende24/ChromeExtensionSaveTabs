@@ -14,8 +14,12 @@ h2 {
 	margin-left: 15px;
 }
 
-.tabFavicon {
+.tab-favicon {
 	margin-right: 10px;
 	width: 16px;
 	height: auto;
+}
+
+.tab-label {
+	margin-right: 10px;
 }
