@@ -8,7 +8,6 @@ document.addEventListener("DOMContentLoaded", function (event) {
 			this.data = data;
 
 			this.logic = new Logic();
-			console.log(this.logic);
 
 			this.add = $("add");
 			this.saveSession = $("save-session");
@@ -21,7 +20,6 @@ document.addEventListener("DOMContentLoaded", function (event) {
 		}
 
 		initTable() {
-			console.log(this.data.tabs);
 			this.addTabsToTable(this.data.tabs);
 		}
 
@@ -73,7 +71,7 @@ document.addEventListener("DOMContentLoaded", function (event) {
 					{ currentWindow: true, active: true },
 					(tabs) => {
 						let tab = {
-							id: this.data.tabs[this.data.tabs.length - 1].id + 1,
+							id: this.logic.getUID(),
 							favicon: tabs[0].favIconUrl,
 							url: tabs[0].url,
 							name:
@@ -81,8 +79,6 @@ document.addEventListener("DOMContentLoaded", function (event) {
 									? tabs[0].title.substring(0, 37) + "..."
 									: tabs[0].title,
 						};
-
-						console.log(tab);
 
 						this.addTabToTable(tab);
 						this.logic.saveTab(tab, this.data.tabs);
@@ -94,7 +90,7 @@ document.addEventListener("DOMContentLoaded", function (event) {
 				chrome.tabs.query({}, (tabs) => {
 					chrome.storage.local.set({ session: tabs });
 					this.logic.createTab();
-					for (tab of tabs) {
+					for (let tab of tabs) {
 						chrome.tabs.remove(tab.id);
 					}
 				});
@@ -102,7 +98,7 @@ document.addEventListener("DOMContentLoaded", function (event) {
 
 			this.loadSession.addEventListener("click", () => {
 				chrome.storage.local.get({ session: [] }, (data) => {
-					for (tab of data.session) {
+					for (let tab of data.session) {
 						this.logic.createTab(tab.url);
 					}
 				});
@@ -118,6 +114,26 @@ document.addEventListener("DOMContentLoaded", function (event) {
 	}
 
 	class Logic {
+		getUID() {
+			function chr4() {
+				return Math.random().toString(16).slice(-4);
+			}
+			return (
+				chr4() +
+				chr4() +
+				"-" +
+				chr4() +
+				"-" +
+				chr4() +
+				"-" +
+				chr4() +
+				"-" +
+				chr4() +
+				chr4() +
+				chr4()
+			);
+		}
+
 		createTab(url) {
 			chrome.tabs.create({
 				url: url,
@@ -125,7 +141,6 @@ document.addEventListener("DOMContentLoaded", function (event) {
 		}
 
 		deleteTab(id, tabs) {
-			id = parseInt(id);
 			const index = tabs.indexOf(tabs.find((e) => e.id == id));
 			if (index > -1) {
 				tabs.splice(index, 1);
@@ -148,7 +163,7 @@ document.addEventListener("DOMContentLoaded", function (event) {
 		let temp = {
 			tabs: [
 				{
-					id: 0,
+					id: "0",
 					favicon:
 						"https://www.youtube.com/s/desktop/5718b32a/img/favicon_32.png",
 					url:
@@ -156,7 +171,7 @@ document.addEventListener("DOMContentLoaded", function (event) {
 					name: "Computational Astrophysics",
 				},
 				{
-					id: 1,
+					id: "1",
 					favicon:
 						"https://www.youtube.com/s/desktop/5718b32a/img/favicon_32.png",
 					url:
@@ -164,22 +179,21 @@ document.addEventListener("DOMContentLoaded", function (event) {
 					name: "Computational Neuroscience",
 				},
 				{
-					id: 2,
+					id: "2",
 					favicon: "https://devstronomy.com/rocket.png",
 					name: "Devstronomy",
 					url: "https://devstronomy.com/#/",
 				},
 				{
-					id: 3,
+					id: "3",
 					favicon:
 						"http://www.astropython.org/static/images/favicons/favicon.ico",
 					name: "Astropython",
 					url: "http://www.astropython.org/",
 				},
 				{
-					id: 4,
-					favicon:
-						"",
+					id: "4",
+					favicon: "",
 					name: "NASA Open APIs",
 					url: "https://api.nasa.gov/",
 				},
@@ -193,5 +207,6 @@ document.addEventListener("DOMContentLoaded", function (event) {
 		//initTabs();
 
 		let app = new App(data);
+		console.log(data);
 	});
 });
