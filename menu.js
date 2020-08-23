@@ -9,11 +9,12 @@ document.addEventListener("DOMContentLoaded", function (event) {
 
 			this.logic = new Logic();
 
+			this.newFolder = $("new");
 			this.add = $("add");
 			this.saveSession = $("save-session");
 			this.loadSession = $("load-session");
 			this.clear = $("clear");
-			this.tabContainer = $("tab-container");
+			this.container = $("container");
 
 			this.initEvents();
 			this.initTable();
@@ -34,7 +35,7 @@ document.addEventListener("DOMContentLoaded", function (event) {
 
 			let tabDiv = document.createElement("div");
 			tabDiv.classList.add("tab");
-			this.tabContainer.appendChild(tabDiv);
+			this.container.appendChild(tabDiv);
 
 			let tabFavicon = new Image();
 			tabFavicon.src = favicon;
@@ -56,7 +57,7 @@ document.addEventListener("DOMContentLoaded", function (event) {
 			tabDelete.innerHTML = "X";
 			tabDiv.appendChild(tabDelete);
 			tabDelete.onclick = () => {
-				this.logic.deleteTab(tabDelete.dataset.id, this.data.tabs);
+				this.logic.deleteTab(tabDelete.dataset.id, this.data);
 				this.deleteTabFromTable(tabDiv);
 			};
 		}
@@ -71,7 +72,7 @@ document.addEventListener("DOMContentLoaded", function (event) {
 					{ currentWindow: true, active: true },
 					(tabs) => {
 						let tab = {
-							id: this.logic.getUID(),
+							id: this.logic.createUUID(),
 							favicon: tabs[0].favIconUrl,
 							url: tabs[0].url,
 							name:
@@ -81,7 +82,7 @@ document.addEventListener("DOMContentLoaded", function (event) {
 						};
 
 						this.addTabToTable(tab);
-						this.logic.saveTab(tab, this.data.tabs);
+						this.logic.saveTab(tab, this.data);
 					},
 				);
 			});
@@ -114,7 +115,7 @@ document.addEventListener("DOMContentLoaded", function (event) {
 	}
 
 	class Logic {
-		getUID() {
+		createUUID() {
 			function chr4() {
 				return Math.random().toString(16).slice(-4);
 			}
@@ -140,26 +141,26 @@ document.addEventListener("DOMContentLoaded", function (event) {
 			});
 		}
 
-		deleteTab(id, tabs) {
-			const index = tabs.indexOf(tabs.find((e) => e.id == id));
+		deleteTab(id, data) {
+			const index = data.tabs.indexOf(data.tabs.find((e) => e.id == id));
 			if (index > -1) {
-				tabs.splice(index, 1);
+				data.tabs.splice(index, 1);
 			}
-			console.log({ index: index, id: id, tabs: tabs });
-			this.saveCurrentData(tabs);
+			console.log({ index: index, id: id, data: data });
+			this.saveCurrentData(data);
 		}
 
-		saveTab(tab, tabs) {
-			tabs.push(tab);
-			this.saveCurrentData(tabs);
+		saveTab(tab, data) {
+			data.tabs.push(tab);
+			this.saveCurrentData(data);
 		}
 
-		saveCurrentData(tabs) {
-			chrome.storage.local.set({ tabs: tabs });
+		saveCurrentData(data) {
+			chrome.storage.local.set({ data: data });
 		}
 	}
 
-	chrome.storage.local.get({ tabs: [] }, function (data) {
+	chrome.storage.local.get({ data: {}}, function (data) {
 		let temp = {
 			tabs: [
 				{
@@ -201,12 +202,13 @@ document.addEventListener("DOMContentLoaded", function (event) {
 		};
 
 		function initTabs() {
-			chrome.storage.local.set({ tabs: temp.tabs });
+			chrome.storage.local.set({ data: temp });
 		}
 
-		//initTabs();
+		initTabs();
+		console.log(data.data);
 
-		let app = new App(data);
-		console.log(data);
+		let app = new App(data.data);
+		console.log(data.data);
 	});
 });

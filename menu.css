@@ -23,3 +23,7 @@ h2 {
 .tab-label {
 	margin-right: 10px;
 }
+
+.cursor-pointer {
+	cursor: pointer;
+}

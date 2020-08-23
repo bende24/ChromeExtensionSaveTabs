@@ -4,7 +4,7 @@
 	"description": "Build an Extension!",
 	"manifest_version": 2,
 	"browser_action": {
-		"default_popup": "menu.html"
+		"default_popup": "folder.html"
 	},
 	"web_accessible_resources": ["data/data.json"],
 	"permissions": ["tabs", "storage", "unlimitedStorage"]
