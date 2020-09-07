@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset='utf-8'>
+    <meta http-equiv='X-UA-Compatible' content='IE=edge'>
+    <title>Bookmark</title>
+    <meta name='viewport' content='width=device-width, initial-scale=1'>
+    <link rel='stylesheet' type='text/css' media='screen' href='css/base.css'>
+    <link rel='stylesheet' type='text/css' media='screen' href='css/popup.css'>
+    <link rel='stylesheet' type='text/css' media='screen' href='css/close.css'>
+    <link rel='stylesheet' type='text/css' media='screen' href='css/add.css'>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+        integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css"
+        integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous">
+    <script src="thirdparty/jquery-3.5.1.js"></script>
+    <script src="thirdparty/bootstrap-4.3.1/js/bootstrap.min.js"></script>
+    <script src="thirdparty/reactjs/react.production.min.js"></script>
+    <script src="thirdparty/reactjs/react-dom.production.min.js"></script>
+</head>
+
+<body>
+    <header class="m-auto">
+        <h2 class="text-center margin-small-bot margin-small-top">Bookmark</h2>
+    </header>
+
+    <nav class="margin-small-bot">
+        <div class="container">
+            <div class="row border-top border-bottom">
+                <div class="col-sm-1"></div>
+                <div class="col-sm-10">
+                    <ul class="nav nav-pills nav-justified">
+                        <li class="nav-item current">
+                            <span id="save-session" class="nav-link menu-txt cursor-pointer border-right">Save
+                                Tabs</span>
+                        </li>
+                        <li class="nav-item">
+                            <span id="load-session" class="nav-link menu-txt cursor-pointer ">Load Tabs</span>
+                        </li>
+                    </ul>
+                </div>
+                <div class="col-sm-1"></div>
+            </div>
+        </div>
+    </nav>
+
+    <main>
+        <div id="menu-container" class="margin-small-bot vertical-center"></div>
+        <div id="data-container" class="scrollable-container"></div>
+    </main>
+
+    <footer class="text-center border-top">
+        <button id="clear" type="button" class="btn btn-outline-danger margin-small-bot margin-small-top">Clear local cache</button>
+    </footer>
+
+    <script src='popup.js'></script>
+</body>
+
+</html>

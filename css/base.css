@@ -1,0 +1,21 @@
+html,
+body {
+	width: 370px;
+	height: 600px;
+	overflow: hidden;
+}
+
+footer {
+	position: fixed;
+	bottom: 0;
+	width: 100%;
+}
+
+h2 {
+	color: teal;
+	margin: 20px;
+}
+
+nav {
+	height: 50px;
+}

@@ -1,20 +1,39 @@
 document.addEventListener("DOMContentLoaded", function (event) {
+	//import View from "./view.js";
+
 	function $(a) {
 		return document.getElementById(a);
 	}
 
-	class App {
-		constructor(data) {
-			this.data = data;
+	class View {
+		constructor(logic) {
+			this.logic = logic;
+			this.container = {
+				data: $("data-container"),
+				menu: $("menu-container"),
+			};
+		}
 
+		saveData() {
+			this.logic.saveCurrentData();
+		}
+
+		clearContainer() {
+			this.container.data.innerHTML = "";
+			this.container.menu.innerHTML = "";
+		}
+	}
+
+	class App {
+		constructor(logic) {
 			this.add = $("add");
 			this.newFolder = $("new");
 			this.saveSession = $("save-session");
 			this.loadSession = $("load-session");
 			this.clear = $("clear");
 
-			this.logic = new Logic(this.data);
-			this.view = new FolderView(this.logic, this.data.folders);
+			this.logic = logic;
+			this.view = new FolderView(this.logic, this.logic.getFolders());
 
 			this.initEvents();
 			this.view.init();
@@ -48,15 +67,13 @@ document.addEventListener("DOMContentLoaded", function (event) {
 		}
 	}
 
-	class FolderView {
+	class FolderView extends View {
 		constructor(logic, folders) {
+			super(logic);
+
 			this.folders = folders;
-			this.container = {
-				data: $("data-container"),
-				menu: $("menu-container"),
-			};
+
 			this.tabView = new TabView(logic, this);
-			this.logic = logic;
 		}
 
 		saveData() {
@@ -64,19 +81,16 @@ document.addEventListener("DOMContentLoaded", function (event) {
 		}
 
 		init() {
-			this.clearContainer();
+			super.clearContainer();
 			this.addFoldersToTable(this.folders);
 			this.initMenu();
-		}
-
-		clearContainer() {
-			this.container.data.innerHTML = "";
-			this.container.menu.innerHTML = "";
 		}
 
 		initMenu() {
 			let input = document.createElement("input");
 			input.placeholder = "Folder name";
+			input.classList.add("margin-small-left", "margin-small-right");
+			input.maxLength = 30;
 			this.container.menu.appendChild(input);
 
 			let newButton = document.createElement("button");
@@ -92,7 +106,9 @@ document.addEventListener("DOMContentLoaded", function (event) {
 
 				this.addFolderToTable(folder);
 				this.logic.save(folder, this.folders);
-				this.saveData();
+				super.saveData();
+				
+				input.value = "";
 			};
 		}
 
@@ -106,13 +122,16 @@ document.addEventListener("DOMContentLoaded", function (event) {
 			let { id, name } = folder;
 
 			let folderDiv = document.createElement("div");
-			folderDiv.classList.add("tab");
+			folderDiv.classList.add("tab", "vertical-center");
 			this.container.data.appendChild(folderDiv);
 
-			let folderAdd = document.createElement("button");
+			let folderAdd = document.createElement("span");
 			folderAdd.setAttribute("data-id", id);
-			folderAdd.classList.add("btn", "btn-info");
-			folderAdd.innerHTML = "+";
+			folderAdd.classList.add(
+				"add",
+				"cursor-pointer",
+				"margin-small-right",
+			);
 			folderDiv.appendChild(folderAdd);
 			folderAdd.onclick = () => {
 				chrome.tabs.query(
@@ -123,18 +142,18 @@ document.addEventListener("DOMContentLoaded", function (event) {
 							favicon: tabs[0].favIconUrl,
 							url: tabs[0].url,
 							name:
-								tabs[0].title.length > 37
-									? tabs[0].title.substring(0, 37) + "..."
+								tabs[0].title.length > 30
+									? tabs[0].title.substring(0, 30) + "..."
 									: tabs[0].title,
 						};
 
 						this.logic.save(tab, folder.tabs);
-						this.saveData();
+						super.saveData();
 					},
 				);
 			};
 
-			let folderLabel = document.createElement("a");
+			let folderLabel = document.createElement("span");
 			folderLabel.classList.add("tab-label", "cursor-pointer");
 			folderLabel.innerHTML = name;
 			folderDiv.appendChild(folderLabel);
@@ -144,13 +163,12 @@ document.addEventListener("DOMContentLoaded", function (event) {
 
 			let folderDelete = document.createElement("button");
 			folderDelete.setAttribute("data-id", id);
-			folderDelete.classList.add("btn", "btn-danger", "tab-delete");
-			folderDelete.innerHTML = "x";
+			folderDelete.classList.add("set-right", "close", "cursor-pointer");
 			folderDiv.appendChild(folderDelete);
 			folderDelete.onclick = () => {
 				this.logic.delete(folderDelete.dataset.id, this.folders);
 				this.deleteFolderFromTable(folderDiv);
-				this.saveData();
+				super.saveData();
 			};
 		}
 
@@ -159,19 +177,15 @@ document.addEventListener("DOMContentLoaded", function (event) {
 		}
 	}
 
-	class TabView {
+	class TabView extends View {
 		constructor(logic, parent) {
-			this.parent = parent;
-			this.container = {
-				data: $("data-container"),
-				menu: $("menu-container"),
-			};
+			super(logic);
 
-			this.logic = logic;
+			this.parent = parent;
 		}
 
 		init(folder) {
-			this.clearContainer();
+			super.clearContainer();
 			this.initMenu(folder);
 			this.addTabsToTable(folder);
 		}
@@ -179,45 +193,46 @@ document.addEventListener("DOMContentLoaded", function (event) {
 		initMenu(folder) {
 			let backButton = document.createElement("button");
 			backButton.classList.add("btn");
-			backButton.innerHTML = "<";
+			backButton.innerHTML = '<i class="fa fa-chevron-left"></i>';
 			this.container.menu.appendChild(backButton);
 			backButton.onclick = () => {
 				this.parent.init();
 			};
 
+			let input = document.createElement("input");
+			input.placeholder = "Name";
+			input.classList.add("margin-small-right");
+			input.maxLength = 30;
+			this.container.menu.appendChild(input);
+
 			let addButton = document.createElement("button");
 			addButton.classList.add("btn", "btn-outline-info");
-			addButton.innerHTML = "Add";
+			addButton.innerHTML = "New";
 			this.container.menu.appendChild(addButton);
 			addButton.onclick = () => {
 				chrome.tabs.query(
 					{ currentWindow: true, active: true },
 					(tabs) => {
+						let name =
+							tabs[0].title.length > 30
+								? tabs[0].title.substring(0, 30) + "..."
+								: tabs[0].title;
+
 						let tab = {
 							id: this.logic.createUUID(),
 							favicon: tabs[0].favIconUrl,
 							url: tabs[0].url,
-							name:
-								tabs[0].title.length > 37
-									? tabs[0].title.substring(0, 37) + "..."
-									: tabs[0].title,
+							name: input.value == "" ? name : input.value,
 						};
 
 						this.addTabToTable(tab, folder);
 						this.logic.save(tab, folder.tabs);
-						this.saveData();
+						super.saveData();
+
+						input.value = "";
 					},
 				);
 			};
-		}
-
-		saveData() {
-			this.logic.saveCurrentData();
-		}
-
-		clearContainer() {
-			this.container.data.innerHTML = "";
-			this.container.menu.innerHTML = "";
 		}
 
 		addTabsToTable(folder) {
@@ -230,7 +245,7 @@ document.addEventListener("DOMContentLoaded", function (event) {
 			let { name, url, favicon } = tab;
 
 			let tabDiv = document.createElement("div");
-			tabDiv.classList.add("tab");
+			tabDiv.classList.add("tab", "vertical-center");
 			this.container.data.appendChild(tabDiv);
 
 			let tabFavicon = new Image();
@@ -249,14 +264,13 @@ document.addEventListener("DOMContentLoaded", function (event) {
 
 			let tabDelete = document.createElement("button");
 			tabDelete.setAttribute("data-id", tab.id);
-			tabDelete.classList.add("btn", "btn-danger", "tab-delete");
-			tabDelete.innerHTML = "x";
+			tabDelete.classList.add("set-right", "close", "cursor-pointer");
 			tabDiv.appendChild(tabDelete);
 			tabDelete.onclick = () => {
 				console.log(folder);
 				this.logic.delete(tabDelete.dataset.id, folder.tabs);
 				this.deleteFromTable(tabDiv);
-				this.saveData();
+				super.saveData();
 			};
 		}
 
@@ -266,8 +280,12 @@ document.addEventListener("DOMContentLoaded", function (event) {
 	}
 
 	class Logic {
-		constructor(data){
+		constructor(data) {
 			this.data = data;
+		}
+
+		getFolders() {
+			return this.data.folders;
 		}
 
 		createUUID() {
@@ -297,9 +315,7 @@ document.addEventListener("DOMContentLoaded", function (event) {
 		}
 
 		delete(id, arr) {
-			const index = arr.indexOf(
-				arr.find((e) => e.id == id),
-			);
+			const index = arr.indexOf(arr.find((e) => e.id == id));
 			if (index > -1) {
 				arr.splice(index, 1);
 			}
@@ -374,7 +390,8 @@ document.addEventListener("DOMContentLoaded", function (event) {
 
 		//initTabs();
 		console.log(data.data);
-		
-		let app = new App(data.data);
+
+		let logic = new Logic(data.data);
+		let app = new App(logic);
 	});
 });
