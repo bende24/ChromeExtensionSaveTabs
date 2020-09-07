@@ -14,8 +14,17 @@
 	align-items: center;
 }
 
+.horizontal-center{
+	display: flex;
+	justify-content:center;
+}
+
 .set-right{
 	margin-left: auto;
+}
+
+.set-left{
+	margin-right: auto;
 }
 
 .tab-favicon {
@@ -42,6 +51,14 @@
 
 .margin-small-left {
 	margin-left: 16px;
+}
+
+.margin-ss-right {
+	margin-right: 8px;
+}
+
+.margin-ss-left {
+	margin-left: 8px;
 }
 
 .margin-small-bot {

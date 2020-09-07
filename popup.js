@@ -11,6 +11,8 @@ document.addEventListener("DOMContentLoaded", function (event) {
 			this.container = {
 				data: $("data-container"),
 				menu: $("menu-container"),
+				menuLeft: $("menu-left"),
+				menuRight: $("menu-right"),
 			};
 		}
 
@@ -21,6 +23,8 @@ document.addEventListener("DOMContentLoaded", function (event) {
 		clearContainer() {
 			this.container.data.innerHTML = "";
 			this.container.menu.innerHTML = "";
+			this.container.menuLeft.innerHTML = "";
+			this.container.menuRight.innerHTML = "";
 		}
 	}
 
@@ -88,8 +92,8 @@ document.addEventListener("DOMContentLoaded", function (event) {
 
 		initMenu() {
 			let input = document.createElement("input");
-			input.placeholder = "Folder name";
-			input.classList.add("margin-small-left", "margin-small-right");
+			input.placeholder = "Folder Name";
+			input.classList.add("margin-small-right");
 			input.maxLength = 30;
 			this.container.menu.appendChild(input);
 
@@ -194,13 +198,13 @@ document.addEventListener("DOMContentLoaded", function (event) {
 			let backButton = document.createElement("button");
 			backButton.classList.add("btn");
 			backButton.innerHTML = '<i class="fa fa-chevron-left"></i>';
-			this.container.menu.appendChild(backButton);
+			this.container.menuLeft.appendChild(backButton);
 			backButton.onclick = () => {
 				this.parent.init();
 			};
 
 			let input = document.createElement("input");
-			input.placeholder = "Name";
+			input.placeholder = "Tab Name";
 			input.classList.add("margin-small-right");
 			input.maxLength = 30;
 			this.container.menu.appendChild(input);
