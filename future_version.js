@@ -10,41 +10,18 @@ document.addEventListener("DOMContentLoaded", function (event) {
 		TAB: "tab",
 	};
 
-	class View {
-		constructor(logic) {
-			this.logic = logic;
-			this.container = {
-				data: $("data-container"),
-				menu: $("menu-container"),
-				menuLeft: $("menu-left"),
-				menuRight: $("menu-right"),
-			};
-			//this.container.data.sortable();
-		}
-
-		saveData() {
-			this.logic.saveCurrentData();
-		}
-
-		clearContainer() {
-			this.container.data.innerHTML = "";
-			this.container.menu.innerHTML = "";
-			this.container.menuLeft.innerHTML = "";
-			this.container.menuRight.innerHTML = "";
-		}
-	}
 
 	class App {
 		constructor(logic) {
-			this.add = $("add");
-			this.newFolder = $("new");
 			this.saveSession = $("save-session");
 			this.loadSession = $("load-session");
 			this.clear = $("clear");
 
 			this.logic = logic;
-			this.view = new FolderView(this.logic, this.logic.getFolders());
+			this.view = new ViewController(this.logic, this.logic.getFolders());
+		}
 
+		start() {
 			this.initEvents();
 			this.view.init();
 		}
@@ -77,64 +54,114 @@ document.addEventListener("DOMContentLoaded", function (event) {
 		}
 	}
 
-	class FolderView extends View {
-		constructor(logic, folders) {
-			super(logic);
+	class ViewController {
+		constructor(logic, datas) {
+			this.logic = logic;
+			this.container = {
+				newInput = $("new-input"),
+				newButton = $("new"),
+				data: $("data-container"),
+				menu: $("menu-container"),
+				back: $("back"),
+				menuRight: $("menu-right"),
+			};
 
-			this.folders = folders;
+			this.datas = datas;
+			this.factory = new DataContainerFactory();
 
-			this.tabView = new TabView(logic, this);
+			this.history = [];
+		}
+
+		init() {
+			this.createTable(this.datas);
+			this.initEvents();
+		}
+
+		initEvents(){
+			this.container.back.addEventListener("click", ()=>{
+				this.onBackClick();
+			});
+			
+			this.container.newButton.addEventListener("click", () => {
+				let dType = dataType.FOLDER;
+				switch (dType) {
+					case dataType.FOLDER:
+						this.view.factory.addFolderToTable(
+							data,
+							datas,
+							this.container,
+							this,
+							this.logic,
+						);
+						break;
+					case dataType.TAB:
+						this.logic.saveNewTab(this.container.newInput.value);
+						this.view.factory.addTabToTable(
+							data,
+							datas,
+							this.container,
+							this,
+							this.logic,
+						);
+						break;
+				}
+			});
 		}
 
 		saveData() {
 			this.logic.saveCurrentData();
 		}
 
-		init() {
-			super.clearContainer();
-			this.addFoldersToTable(this.folders);
-			this.initMenu();
+		clearContainer() {
+			this.container.data.innerHTML = "";
 		}
 
-		initMenu() {
-			let input = document.createElement("input");
-			input.placeholder = "Folder Name";
-			input.classList.add("margin-small-right");
-			input.maxLength = 30;
-			this.container.menu.appendChild(input);
+		createTable(datas) {
+			this.clearContainer();
 
-			let newButton = document.createElement("button");
-			newButton.classList.add("btn", "btn-outline-info");
-			newButton.innerHTML = "New";
-			this.container.menu.appendChild(newButton);
-			newButton.onclick = () => {
-				let folder = {
-					id: this.logic.createUUID(),
-					name: input.value == "" ? "New Folder" : input.value,
-					tabs: [],
-					type: dataType.FOLDER,
-				};
-
-				this.addFolderToTable(folder);
-				this.logic.save(folder, this.folders);
-				super.saveData();
-
-				input.value = "";
-			};
-		}
-
-		addFoldersToTable(folders) {
-			for (let folder of folders) {
-				this.addFolderToTable(folder);
+			for (let data of datas) {
+				switch (data.type) {
+					case dataType.FOLDER:
+						this.factory.addFolderToTable(
+							data,
+							datas,
+							this.container,
+							this,
+							this.logic,
+						);
+						break;
+					case dataType.TAB:
+						this.factory.addTabToTable(
+							data,
+							datas,
+							this.container,
+							this,
+							this.logic,
+						);
+						break;
+				}
 			}
 		}
 
-		addFolderToTable(folder) {
+		onFolderClick(data){
+			this.history.push(data);
+		}
+
+		onBackClick(){
+			if(this.history.length > 0){
+				let parent = this.history.pop();
+				this.createTable(parent);
+			}
+		}
+	}
+
+	class DataContainerFactory {
+		addFolderToTable(folder, parent, container, view, logic) {
 			let { id, name } = folder;
 
 			let folderDiv = document.createElement("div");
 			folderDiv.classList.add("tab", "vertical-center");
-			this.container.data.appendChild(folderDiv);
+			container.data.appendChild(folderDiv);
 
 			let folderAdd = document.createElement("span");
 			folderAdd.setAttribute("data-id", id);
@@ -145,24 +172,7 @@ document.addEventListener("DOMContentLoaded", function (event) {
 			);
 			folderDiv.appendChild(folderAdd);
 			folderAdd.onclick = () => {
-				chrome.tabs.query(
-					{ currentWindow: true, active: true },
-					(tabs) => {
-						let tab = {
-							id: this.logic.createUUID(),
-							favicon: tabs[0].favIconUrl,
-							url: tabs[0].url,
-							name:
-								tabs[0].title.length > 30
-									? tabs[0].title.substring(0, 30) + "..."
-									: tabs[0].title,
-							type: dataType.TAB,
-						};
-
-						this.logic.save(tab, folder.tabs);
-						super.saveData();
-					},
-				);
+				this.logic.saveNewTab();
 			};
 
 			let folderLabel = document.createElement("span");
@@ -170,7 +180,8 @@ document.addEventListener("DOMContentLoaded", function (event) {
 			folderLabel.innerHTML = name;
 			folderDiv.appendChild(folderLabel);
 			folderLabel.onclick = () => {
-				this.tabView.init(folder);
+				view.onFolderClick(parent);
+				view.createTable(folder.tabs);
 			};
 
 			let folderDelete = document.createElement("button");
@@ -178,88 +189,18 @@ document.addEventListener("DOMContentLoaded", function (event) {
 			folderDelete.classList.add("set-right", "close", "cursor-pointer");
 			folderDiv.appendChild(folderDelete);
 			folderDelete.onclick = () => {
-				this.logic.delete(folderDelete.dataset.id, this.folders);
-				this.deleteFolderFromTable(folderDiv);
-				super.saveData();
+				logic.delete(folderDelete.dataset.id, this.folders);
+				this.deleteFromTable(folderDiv);
+				view.saveData();
 			};
 		}
 
-		deleteFolderFromTable(folder) {
-			folder.parentNode.removeChild(folder);
-		}
-	}
-
-	class TabView extends View {
-		constructor(logic, parent) {
-			super(logic);
-
-			this.parent = parent;
-		}
-
-		init(folder) {
-			super.clearContainer();
-			this.initMenu(folder);
-			this.addTabsToTable(folder);
-		}
-
-		initMenu(folder) {
-			let backButton = document.createElement("button");
-			backButton.classList.add("btn");
-			backButton.innerHTML = '<i class="fa fa-chevron-left"></i>';
-			this.container.menuLeft.appendChild(backButton);
-			backButton.onclick = () => {
-				this.parent.init();
-			};
-
-			let input = document.createElement("input");
-			input.placeholder = "Tab Name";
-			input.classList.add("margin-small-right");
-			input.maxLength = 30;
-			this.container.menu.appendChild(input);
-
-			let addButton = document.createElement("button");
-			addButton.classList.add("btn", "btn-outline-info");
-			addButton.innerHTML = "New";
-			this.container.menu.appendChild(addButton);
-			addButton.onclick = () => {
-				chrome.tabs.query(
-					{ currentWindow: true, active: true },
-					(tabs) => {
-						let name =
-							tabs[0].title.length > 30
-								? tabs[0].title.substring(0, 30) + "..."
-								: tabs[0].title;
-
-						let tab = {
-							id: this.logic.createUUID(),
-							favicon: tabs[0].favIconUrl,
-							url: tabs[0].url,
-							name: input.value == "" ? name : input.value,
-							type: dataType.TAB,
-						};
-
-						this.addTabToTable(tab, folder);
-						this.logic.save(tab, folder.tabs);
-						super.saveData();
-
-						input.value = "";
-					},
-				);
-			};
-		}
-
-		addTabsToTable(folder) {
-			for (let tab of folder.tabs) {
-				this.addTabToTable(tab, folder);
-			}
-		}
-
-		addTabToTable(tab, folder) {
+		addTabToTable(tab, folder, container, view, logic) {
 			let { name, url, favicon } = tab;
 
 			let tabDiv = document.createElement("div");
 			tabDiv.classList.add("tab", "vertical-center");
-			this.container.data.appendChild(tabDiv);
+			container.data.appendChild(tabDiv);
 
 			let tabFavicon = new Image();
 			tabFavicon.src = favicon;
@@ -272,7 +213,7 @@ document.addEventListener("DOMContentLoaded", function (event) {
 			tabLabel.innerHTML = name;
 			tabDiv.appendChild(tabLabel);
 			tabLabel.onclick = () => {
-				this.logic.createTab(url);
+				logic.createTab(url);
 			};
 
 			let tabDelete = document.createElement("button");
@@ -280,10 +221,9 @@ document.addEventListener("DOMContentLoaded", function (event) {
 			tabDelete.classList.add("set-right", "close", "cursor-pointer");
 			tabDiv.appendChild(tabDelete);
 			tabDelete.onclick = () => {
-				console.log(folder);
-				this.logic.delete(tabDelete.dataset.id, folder.tabs);
+				logic.delete(tabDelete.dataset.id, folder.tabs);
 				this.deleteFromTable(tabDiv);
-				super.saveData();
+				view.saveData();
 			};
 		}
 
@@ -325,6 +265,28 @@ document.addEventListener("DOMContentLoaded", function (event) {
 			chrome.tabs.create({
 				url: url,
 			});
+		}
+
+		saveNewTab(tabName = ""){
+			chrome.tabs.query(
+				{ currentWindow: true, active: true },
+				(tabs) => {
+					let tabN = tabName == "" ? tabs[0].title : tabName;
+					let tab = {
+						id: logic.createUUID(),
+						favicon: tabs[0].favIconUrl,
+						url: tabs[0].url,
+						name:
+							tabN.length > 30
+								? tabN.substring(0, 30) + "..."
+								: tabN,
+						type: dataType.TAB,
+					};
+
+					this.save(tab, folder.tabs);
+					this.saveCurrentData();
+				},
+			);
 		}
 
 		delete(id, arr) {
@@ -401,10 +363,21 @@ document.addEventListener("DOMContentLoaded", function (event) {
 			chrome.storage.local.set({ data: temp });
 		}
 
+		function initDataTypes() {
+			for (let folder of data.data.folders) {
+				folder.type = dataType.FOLDER;
+				for (let tab of folder.tabs) {
+					tab.type = dataType.TAB;
+				}
+			}
+		}
+
 		//initTabs();
+		//initDataTypes();
 		console.log(data.data);
 
 		let logic = new Logic(data.data);
 		let app = new App(logic);
+		app.start();
 	});
 });

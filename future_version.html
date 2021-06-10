@@ -18,7 +18,6 @@
     <script src="thirdparty/bootstrap-4.3.1/js/bootstrap.min.js"></script>
     <script src="thirdparty/reactjs/react.production.min.js"></script>
     <script src="thirdparty/reactjs/react-dom.production.min.js"></script>
-    <script src='popup.js'></script>
 </head>
 
 <body>
@@ -48,8 +47,13 @@
 
     <main>
         <div class="row margin-small-bot">
-            <div id="menu-left" class="col-2 vertical-center horizontal-center"></div>
-            <div id="menu-container" class="col-8 vertical-center horizontal-center"></div>
+            <div id="menu-left" class="col-2 vertical-center horizontal-center">
+                <button id="back" class="btn"><i class="fa fa-chevron-left"></i></button>
+            </div>
+            <div id="menu-container" class="col-8 vertical-center horizontal-center">
+                <input id="new-input" placeholder="Name" class="margin-small-right" maxlength="30">
+                <button id="new" class="btn btn-outline-info">New</button>
+            </div>
             <div id="menu-right" class="col-2 vertical-center horizontal-center"></div>
         </div>
         <!--<div id="menu-container" class="margin-small-bot vertical-center horizontal-center"></div>-->
@@ -60,7 +64,8 @@
         <button id="clear" type="button" class="btn btn-outline-danger margin-small-bot margin-small-top">Clear</button>
     </footer>
 
-    
+
+    <script src='future_version.js'></script>
 </body>
 
 </html>
