@@ -8,4 +8,3 @@ It's not available on Chrome Web Store, because it was just a personal project i
 2. Ensure that the "Developer mode" checkbox in the top right-hand corner is checked.
 3. Select "Load unpacked".
 4. Select the folder which contains the extension.
-5. Done!
