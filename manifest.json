@@ -4,7 +4,7 @@
 	"description": "Bookmark",
 	"manifest_version": 2,
 	"browser_action": {
-		"default_popup": "popup.html"
+		"default_popup": "future_version.html"
 	},
 	"web_accessible_resources": ["data/data.json"],
 	"permissions": ["tabs", "storage", "unlimitedStorage"]
