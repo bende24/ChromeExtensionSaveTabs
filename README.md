@@ -10,4 +10,8 @@ It's not available on Chrome Web Store, because it was just a personal project i
 4. Select the folder which contains the extension.
 
 ## Beta branch
-If you want to work on it for some reason or just want to see a better looking but not fully functional code the beta branch is for you.
+If you want to 
+- work on it for some reason 
+- want to see a better looking but not fully functional code 
+
+the **beta branch** is for you.
