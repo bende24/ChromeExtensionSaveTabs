@@ -12,6 +12,6 @@ It's not available on Chrome Web Store, because it was just a personal project i
 ## Beta branch
 If you want to 
 - work on it for some reason 
-- want to see a better looking but not fully functional code 
+- want to see a better looking but not fully functional chrome extension source code 
 
 the **beta branch** is for you.
