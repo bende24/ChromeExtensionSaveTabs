@@ -9,5 +9,5 @@ It's not available on Chrome Web Store, because it was just a personal project i
 3. Select "Load unpacked".
 4. Select the folder which contains the extension.
 
-## "I want to improve it" or "I want to see how does a chrome extension source code looks like"
+## Beta branch
 If you want to work on it for some reason or just want to see a better looking but not fully functional code the beta branch is for you.
