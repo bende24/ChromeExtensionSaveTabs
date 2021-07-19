@@ -1,7 +1,9 @@
 # Chrome Extension SaveTabs
 A Chrome extension for saving tabs.
 
-It's not available on Chrome Web Store, because it was just a personal project initially made to be able to store and close all of the open tabs then reload them later, but then I expanded on it later and honestly chrome does it better.
+It's not available on Chrome Web Store, because it was just a personal project initially made to be able to store and close all of the open tabs then reload them later, but then I expanded on it later and honestly chrome does it better. 
+
+If you want to see a better looking source code check out the **beta branch**!
 
 ## Screenshots
 <div>
