@@ -3,6 +3,12 @@ A Chrome extension for saving tabs.
 
 It's not available on Chrome Web Store, because it was just a personal project initially made to be able to store and close all of the open tabs then reload them later, but then I expanded on it later and honestly chrome does it better.
 
+## Screenshots
+<div>
+<img src="screenshots/Folders.PNG" width="200" />
+<img src="screenshots/Tabs.PNG" width="200" />
+</div>
+
 ## How to use
 1. Open chrome extensions page (chrome://extensions/)
 2. Ensure that the "Developer mode" checkbox in the top right-hand corner is checked.
